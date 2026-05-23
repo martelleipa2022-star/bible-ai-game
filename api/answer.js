@@ -1,6 +1,4 @@
-
-let memoryStore = global.memoryStore || {};
-global.memoryStore = memoryStore;
+let users = {};
 
 module.exports = (req, res) => {
 
@@ -11,21 +9,19 @@ module.exports = (req, res) => {
   const { user, answer, correct } = req.body;
 
   if (!user) {
-    return res.status(400).json({ error: "Missing user" });
+    return res.status(400).json({ error: "User required" });
   }
 
-  if (!memoryStore[user]) {
-    memoryStore[user] = 0;
-  }
+  if (!users[user]) users[user] = 0;
 
   const isCorrect = answer === correct;
 
   if (isCorrect) {
-    memoryStore[user] += 10;
+    users[user] += 10;
   }
 
-  return res.json({
+  res.json({
     correct: isCorrect,
-    points: memoryStore[user]
+    totalPoints: users[user]
   });
 };

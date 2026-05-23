@@ -3,13 +3,13 @@ const axios = require("axios");
 module.exports = async (req, res) => {
 
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Use POST only" });
+    return res.status(405).json({ error: "POST only" });
   }
 
   const { verse } = req.body;
 
   if (!verse) {
-    return res.status(400).json({ error: "Verse missing" });
+    return res.status(400).json({ error: "Verse required" });
   }
 
   try {
@@ -18,21 +18,19 @@ module.exports = async (req, res) => {
       "https://api.groq.com/openai/v1/chat/completions",
       {
         model: "llama-3.1-8b-instant",
-
         messages: [
           {
             role: "system",
             content: `
 You are a Bible quiz generator focused on GRACE.
 
-RULES:
-- 1 question only
-- 4 options
+Rules:
+- 1 short question
+- 4 multiple choice answers
 - 1 correct answer
 - DO NOT repeat the verse as answer
-- Return ONLY JSON
+- Return ONLY JSON:
 
-FORMAT:
 {
   "question": "",
   "options": ["A","B","C","D"],
@@ -45,7 +43,6 @@ FORMAT:
             content: verse
           }
         ],
-
         temperature: 0.7
       },
       {
@@ -58,13 +55,12 @@ FORMAT:
 
     let content = response.data.choices[0].message.content;
 
-    // remove markdown formatting if AI adds it
     content = content.replace(/```json|```/g, "").trim();
 
-    return res.status(200).json(JSON.parse(content));
+    res.status(200).json(JSON.parse(content));
 
   } catch (err) {
-    return res.status(500).json({
+    res.status(500).json({
       error: "Quiz generation failed",
       details: err.response?.data || err.message
     });

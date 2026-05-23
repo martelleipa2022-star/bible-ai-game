@@ -1,6 +1,4 @@
-
-let memoryStore = global.memoryStore || {};
-global.memoryStore = memoryStore;
+let users = {};
 
 module.exports = (req, res) => {
 
@@ -8,12 +6,9 @@ module.exports = (req, res) => {
     return res.status(405).json({ error: "GET only" });
   }
 
-  const leaderboard = Object.entries(memoryStore)
-    .map(([name, points]) => ({
-      name,
-      points
-    }))
+  const board = Object.entries(users)
+    .map(([name, points]) => ({ name, points }))
     .sort((a, b) => b.points - a.points);
 
-  return res.json(leaderboard);
+  res.json(board);
 };
